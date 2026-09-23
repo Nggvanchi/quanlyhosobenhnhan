@@ -8,7 +8,7 @@
 | Mai Xuân Bình | 25110149 | Tra cứu hồ sơ, kiểm tra tính hợp lệ dữ liệu. |
 | Trần Ngọc Bền | 25110148 | Quản lý bệnh nhân ưu tiên, sắp xếp hàng đợi. |
 | Nguyễn Văn Chí | 25110154 | Quản lý và tìm kiếm lịch hẹn theo khoảng thời gian/trạng thái. |
-| Nguyễn Quốc Toàn | 25110368 | Xử lý nghiệp vụ đặt lịch, hủy lịch và kiểm soát suất khám[cite: 6]. |
+| Nguyễn Quốc Toàn | 25110368 | Xử lý nghiệp vụ đặt lịch, hủy lịch và kiểm soát suất khám. |
 | Võ Nguyễn Trúc Thư | 25110359 | Quản lý, lưu trữ lịch sử khám bệnh và nhắc lịch tái khám. |
 
 ## Giới thiệu đồ án

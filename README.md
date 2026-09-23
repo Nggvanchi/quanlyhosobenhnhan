@@ -41,7 +41,7 @@ Phòng khám hàng ngày phải tiếp nhận và quản lý một lượng lớ
 
 Dự án được thiết kế module hóa nhưng đã được liên kết toàn bộ vào file `main.cpp`. Do đó, bạn **chỉ cần chạy duy nhất file `main.cpp`** là toàn bộ hệ thống sẽ hoạt động mà không cần cấu hình phức tạp.
 
-**Lưu ý:** Nhóm không tải lên file dữ liệu ban đầu. Hệ thống sẽ tự động nhận diện và khởi động với dữ liệu trống nếu không tìm thấy file data, bạn có thể nhập thêm dữ liệu trực tiếp qua menu của chương trình.
+**Lưu ý:** Nhóm không tải lên file dữ liệu ban đầu. Hệ thống sẽ tự động nhận diện và khởi động với dữ liệu trống nếu không tìm thấy file data.
 
 ### Cách 1: Chạy bằng các phần mềm lập trình
 Nếu bạn đang sử dụng Visual Studio Code, Dev-C++, Code::Blocks hoặc Visual Studio:

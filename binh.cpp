@@ -1,13 +1,11 @@
 #include <iostream>
 #include <string>
-#include <vector>
 #include <ctime>
 #include "QuanLyPhongKham.h"   // header chung: HoSoBenhNhan, TrangThai, ngaySinhHopLe, sdtHopLe, sinhMaBenhNhan
 using namespace std;
 
 // =====================================================================
 // 1. CÁC HÀM KIỂM TRA (VALIDATE)
-//    (struct HoSoBenhNhan và trạng thái đã nằm trong header chung)
 // =====================================================================
 bool laSo(char c) { return c >= '0' && c <= '9'; }
 
@@ -23,9 +21,6 @@ bool validateHoTen(const string& ten) {
     return true;
 }
 
-// ngaySinhHopLe() của header lo phần định dạng + đúng lịch (30/02, năm nhuận...).
-// Nhưng nó chỉ chặn theo NĂM (1600..2026), nên ngày sau hôm nay trong năm nay vẫn lọt qua
-// -> ta tự thêm luật "không lớn hơn hôm nay".
 bool validateNgaySinh(const string& s) {
     if (!ngaySinhHopLe(s)) return false;
 
@@ -43,17 +38,25 @@ bool validateNgaySinh(const string& s) {
 bool validateSDT(const string& sdt) { return sdtHopLe(sdt); }
 
 // =====================================================================
-// 2. BẢNG BĂM (dò tuyến tính) CHO 100.000 BẢN GHI
+// 2. BẢNG BĂM (dò tuyến tính) DÙNG MẢNG ĐỘNG CHO 100.000 BẢN GHI
 // =====================================================================
 struct BangBam {
     static const int SIZE = 150007;          // số nguyên tố > 100.000 x 1.5
     static const int MAX_BAN_GHI = 100000;   // giới hạn số hồ sơ
 
-    vector<HoSoBenhNhan> danhSach;           // vector tự cấp phát + tự giải phóng
+    HoSoBenhNhan* danhSach;                  // Mảng động quản lý danh sách hồ sơ
     int soLuong = 0;
     int demMaTudong = 0;                     // số thứ tự đã dùng để sinh mã
 
-    BangBam() : danhSach(SIZE) {}            // tạo sẵn SIZE ô trống
+    // Constructor: Cấp phát mảng động
+    BangBam() {
+        danhSach = new HoSoBenhNhan[SIZE];
+    }
+
+    // Destructor: Giải phóng bộ nhớ mảng động khi kết thúc
+    ~BangBam() {
+        delete[] danhSach;
+    }
 
     // Băm chuỗi: duyệt từng ký tự bằng chỉ số
     int hamBam(const string& maBN) {
@@ -65,7 +68,6 @@ struct BangBam {
     }
 
     // Tìm vị trí của mã trong bảng. Không có -> trả về -1.
-    // (traCuu, batDauKham, hoanThanhKham đều dùng chung hàm này)
     int timViTri(const string& maBN) {
         int viTri = hamBam(maBN);
         int soLanTim = 0;
@@ -104,7 +106,7 @@ struct BangBam {
         return true;
     }
 
-    // Hàm tra cứu đã sửa logic: Ngày khám, Thông tin lịch hẹn, Trạng thái khám hiện tại
+    // Hàm tra cứu logic: Ngày khám, Thông tin lịch hẹn, Trạng thái khám hiện tại
     string traCuu(const string& maBN) {
         if (!validateMaBN(maBN)) return "Mã bệnh nhân không hợp lệ.";
 
@@ -146,18 +148,17 @@ struct BangBam {
                      const string& sdt, string& maMoi) {
         if (soLuong >= MAX_BAN_GHI) return false;
 
-        int soMoi = demMaTudong + 1;             // thử số kế tiếp, CHƯA ghi vào demMaTudong
+        int soMoi = demMaTudong + 1;
 
         HoSoBenhNhan h;
         h.maBenhNhan = sinhMaBenhNhan(soMoi);
         h.hoTen = hoTen;
         h.ngaySinh = ngaySinh;
         h.sdt = sdt;
-        // h.trangThai tự = GOI_KHAM (mặc định trong struct)
 
-        if (!insertHoSo(h)) return false;        // thất bại -> demMaTudong giữ nguyên, không hụt số
+        if (!insertHoSo(h)) return false;
 
-        demMaTudong = soMoi;                     // thành công mới chốt số
+        demMaTudong = soMoi;
         maMoi = h.maBenhNhan;
         return true;
     }
@@ -167,8 +168,8 @@ struct BangBam {
         if (!validateMaBN(maBN)) return false;
 
         int viTri = timViTri(maBN);
-        if (viTri == -1) return false;                                       // không có hồ sơ
-        if (danhSach[viTri].trangThai != TrangThai::GOI_KHAM) return false;  // sai trạng thái
+        if (viTri == -1) return false;
+        if (danhSach[viTri].trangThai != TrangThai::GOI_KHAM) return false;
 
         danhSach[viTri].trangThai = TrangThai::DANG_KHAM;
         return true;

@@ -104,6 +104,7 @@ struct BangBam {
         return true;
     }
 
+    // Hàm tra cứu đã sửa logic: Ngày khám, Thông tin lịch hẹn, Trạng thái khám hiện tại
     string traCuu(const string& maBN) {
         if (!validateMaBN(maBN)) return "Mã bệnh nhân không hợp lệ.";
 
@@ -111,11 +112,33 @@ struct BangBam {
         if (viTri == -1) return "Khong tim thay ho so benh nhan.";
 
         HoSoBenhNhan& h = danhSach[viTri];
+
+        string ngayKhamDisplay;
+        string thongTinLichHen;
+        string trangThaiKham;
+
+        // Kiểm tra xem bệnh nhân có đặt lịch khám hoặc lịch tái khám không
+        if (!h.ngayDatLich.empty()) {
+            ngayKhamDisplay = h.ngayDatLich;
+            thongTinLichHen = "co";
+            trangThaiKham   = "chua kham";
+        } else if (!h.ngayTaiKham.empty()) {
+            ngayKhamDisplay = h.ngayTaiKham;
+            thongTinLichHen = "co";
+            trangThaiKham   = "chua kham";
+        } else {
+            ngayKhamDisplay = h.ngayKhamGanNhat;
+            thongTinLichHen = "chua co";
+            trangThaiKham   = "da kham";
+        }
+
         return "Ma BN: " + h.maBenhNhan +
                " | Ten: " + h.hoTen +
                " | Ngay Sinh: " + h.ngaySinh +
                " | SDT: " + h.sdt +
-               " | Trang thai: " + h.trangThai;
+               " | Ngay kham: " + ngayKhamDisplay +
+               " | Thong tin lich hen: " + thongTinLichHen +
+               " | Trang thai kham: " + trangThaiKham;
     }
 
     // Thêm hồ sơ mới: định dạng mã do hàm chung sinhMaBenhNhan(số) tạo
@@ -163,4 +186,3 @@ struct BangBam {
         return true;
     }
 };
-

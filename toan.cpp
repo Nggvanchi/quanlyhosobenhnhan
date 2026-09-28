@@ -19,6 +19,7 @@ bool validateMaBN(const string& ma);    // binh.cpp
 
 // Ma tra ve cua datLich va huyLich (file khac muon dung thi chep 2 dong const int nay vao QuanLyPhongKham.h)
 const int DL_OK = 0, DL_DAU_VAO_SAI = 1, DL_DAY = 2, DL_TRUNG = 3;
+const int DL_SDT_SAI = 4;   // MOI: de giao dien bao dung loi
 const int HL_OK = 0, HL_KHONG_TIM_THAY = 1, HL_DA_HUY_ROI = 2, HL_DA_KHAM = 3;
 
 // Bo dem suat: (ngay, khung gio) -> so nguoi da dat, toi da K_TOI_DA
@@ -46,11 +47,33 @@ int timLich(const string& ma, const string& ngay, const string& gio, const strin
     return -1;
 }
 
-// Gio kham hop le: co trong DS_KHUNG_GIO chung va nam trong 08:00 - 14:30
+// Gio kham hop le: co trong DS_KHUNG_GIO chung va nam trong 07:30 - 20:00
 bool gioKhamHopLe(const string& gio) {
     if (!khungGioHopLe(gio)) return false;
     int p = soPhutTrongNgay(gio);
-    return p >= 8 * 60 && p <= 14 * 60 + 30;
+    return p >= 7 * 60 + 30 && p <= 20 * 60 ;
+}
+// Ngay sinh dang dd/mm/yyyy: dung dinh dang, ngay thang ton tai (co nam nhuan)
+bool ngaySinhHopLe(const string& s) {
+    if (s.size() != 10 || s[2] != '/' || s[5] != '/') return false;
+    for (int i = 0; i < 10; i++)
+        if (i != 2 && i != 5 && (s[i] < '0' || s[i] > '9')) return false;
+
+    int d = stoi(s.substr(0, 2)), m = stoi(s.substr(3, 2)), y = stoi(s.substr(6, 4));
+    if (y < 1900 || m < 1 || m > 12 || d < 1) return false;
+
+    int ngayTrongThang[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    bool nhuan = (y % 4 == 0 && y % 100 != 0) || y % 400 == 0;
+    int maxNgay = ngayTrongThang[m - 1];
+    if (m == 2 && nhuan) maxNgay = 29;
+    return d <= maxNgay;
+}
+        // SDT Viet Nam: du 10 chu so, bat dau bang 0
+bool sdtHopLe(const string& s) {
+    if (s.size() != 10 || s[0] != '0') return false;
+    for (int i = 0; i < 10; i++)
+        if (s[i] < '0' || s[i] > '9') return false;
+    return true;
 }
 
 // Doi ten khoa (khong phan biet hoa/thuong) thanh TEN CHUAN trong DS_KHOA. Khong co thi tra "".
@@ -88,15 +111,19 @@ string chonChuyenKhoa() {
 }
 
 // ---- DAT LICH: kiem tra het roi moi ghi. Con cho -> them lich + tang dem; day -> DL_DAY ----
-int datLich(const string& maBN, const string& ngay, const string& gio, const string& chuyenKhoa) {
-    string khoa = chuanHoaKhoa(chuyenKhoa);           // luu TEN CHUAN de chuyen sang lich su kham
-    if (!validateMaBN(maBN) || !ngayKhamHopLe(ngay) || !gioKhamHopLe(gio) || khoa == "")
+int datLich(const string& maBN, const string& ngaySinh, const string& sdt,
+            const string& ngay, const string& gio, const string& chuyenKhoa) {
+    string khoa = chuanHoaKhoa(chuyenKhoa);
+
+    if (!validateMaBN(maBN) || !ngaySinhHopLe(ngaySinh) || !ngayKhamHopLe(ngay)
+        || !gioKhamHopLe(gio) || khoa == "")
         return DL_DAU_VAO_SAI;
-    if (timLich(maBN, ngay, gio, TrangThai::DANG_KHAM) >= 0) return DL_TRUNG;   // da co lich con hieu luc
+    if (!sdtHopLe(sdt)) return DL_SDT_SAI;
+    if (timLich(maBN, ngay, gio, TrangThai::DANG_KHAM) >= 0) return DL_TRUNG;
 
     int vt = timSuat(ngay, gio);
-    if (vt >= 0 && dsSuat[vt].soDaDat >= K_TOI_DA) return DL_DAY;              // het cho
-    if (vt < 0) {                                     // chua co bo dem -> tao khi co nguoi dat dau tien
+    if (vt >= 0 && dsSuat[vt].soDaDat >= K_TOI_DA) return DL_DAY;
+    if (vt < 0) {
         SuatKhung moi;
         moi.ngay = ngay;
         moi.khungGio = gio;
@@ -105,12 +132,14 @@ int datLich(const string& maBN, const string& ngay, const string& gio, const str
         vt = (int)dsSuat.size() - 1;
     }
 
-    LichHen lh;                                       // trangThai mac dinh = DANG_KHAM (con hieu luc)
+    LichHen lh;
     lh.maBN = maBN;
+    lh.ngaySinh = ngaySinh;
+    lh.sdt = sdt;
     lh.ngay = ngay;
     lh.khungGio = gio;
     lh.chuyenKhoa = khoa;
-    themLich(lh);                                     // chi.cpp: them vao dsLichChinh + chen chi so theo gio
+    themLich(lh);
     dsSuat[vt].soDaDat++;
     return DL_OK;
 }

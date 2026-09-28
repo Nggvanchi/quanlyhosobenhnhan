@@ -53,13 +53,13 @@ bool gioKhamHopLe(const string& gio) {
     int p = soPhutTrongNgay(gio);
     return p >= 7 * 60 + 30 && p <= 20 * 60 ;
 }
-// Ngay sinh dang dd/mm/yyyy: dung dinh dang, ngay thang ton tai (co nam nhuan)
+// Ngay sinh dang mm/dd/yyyy: dung dinh dang, ngay thang ton tai (co nam nhuan)
 bool ngaySinhHopLe(const string& s) {
     if (s.size() != 10 || s[2] != '/' || s[5] != '/') return false;
     for (int i = 0; i < 10; i++)
         if (i != 2 && i != 5 && (s[i] < '0' || s[i] > '9')) return false;
 
-    int d = stoi(s.substr(0, 2)), m = stoi(s.substr(3, 2)), y = stoi(s.substr(6, 4));
+    int m = stoi(s.substr(0, 2)), d = stoi(s.substr(3, 2)), y = stoi(s.substr(6, 4));
     if (y < 1900 || m < 1 || m > 12 || d < 1) return false;
 
     int ngayTrongThang[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};

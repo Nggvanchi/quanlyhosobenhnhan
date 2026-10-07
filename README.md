@@ -1,5 +1,5 @@
 # quanlyhosobenhnhan
-Đồ án cấu trúc dữ liệu và giải  - Hệ thống hàng đợi và hồ sơ bệnh nhân phòng khám
+Đồ án cấu trúc dữ liệu và giải thuật - Hệ thống hàng đợi và hồ sơ bệnh nhân phòng khám
 
 ## Danh sách thành viên nhóm và Vai trò
 
